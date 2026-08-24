@@ -1,0 +1,361 @@
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Scanner input = new Scanner(System.in);
+        HospitalSystem system = new HospitalSystem();
+
+        int choice;
+
+        do {
+
+            System.out.println("\n===== MediCare Hospital =====");
+            System.out.println("1. Register Patient");
+            System.out.println("2. Display Patients");
+            System.out.println("3. Sort By Surname");
+            System.out.println("4. Display Ward");
+            System.out.println("5. Exit");
+
+            choice = input.nextInt();
+            input.nextLine();
+
+            switch (choice) {
+
+                case 1:
+
+                    System.out.print("Patient ID: ");
+                    String id = input.nextLine();
+
+                    System.out.print("First Name: ");
+                    String first = input.nextLine();
+
+                    System.out.print("Last Name: ");
+                    String last = input.nextLine();
+
+                    System.out.print("Age: ");
+                    int age = input.nextInt();
+                    input.nextLine();
+
+                    System.out.print("Gender: ");
+                    String gender = input.nextLine();
+
+                    System.out.print("Condition: ");
+                    String condition = input.nextLine();
+
+                    System.out.println("1. InPatient");
+                    System.out.println("2. OutPatient");
+                    System.out.println("3. Emergency");
+
+                    int type = input.nextInt();
+
+                    Patient patient;
+
+                    if (type == 1) {
+                        patient = new InPatient(id, first, last,
+                                age, gender, condition);
+                    } else if (type == 2) {
+                        patient = new OutPatient(id, first, last,
+                                age, gender, condition);
+                    } else {
+                        patient = new EmergencyPatient(id, first, last,
+                                age, gender, condition);
+                    }
+
+                    if (system.addPatient(patient)) {
+                        System.out.println("Patient Added.");
+                    } else {
+                        System.out.println("Duplicate Patient ID.");
+                    }
+
+                    break;
+
+                case 2:
+                    system.displayPatients();
+                    break;
+
+                case 3:
+                    system.sortBySurname();
+                    System.out.println("Sorted.");
+                    break;
+
+                case 4:
+                    system.getWard().displayWard();
+                    break;
+
+                case 5:
+                    System.out.println("Goodbye.");
+                    break;
+            }
+
+        } while (choice != 5);
+    }
+}
+
+public class Patient {
+
+    private String patientId;
+    private String firstName;
+    private String lastName;
+    private int age;
+    private String gender;
+    private String medicalCondition;
+    private PatientCategory category;
+
+    public Patient(String patientId, String firstName, String lastName,
+                   int age, String gender, String medicalCondition,
+                   PatientCategory category) {
+
+        this.patientId = patientId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.gender = gender;
+        this.medicalCondition = medicalCondition;
+        this.category = category;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public PatientCategory getCategory() {
+        return category;
+    }
+
+    public void displayInfo() {
+        System.out.println("ID: " + patientId);
+        System.out.println("Name: " + firstName + " " + lastName);
+        System.out.println("Age: " + age);
+        System.out.println("Gender: " + gender);
+        System.out.println("Condition: " + medicalCondition);
+        System.out.println("Category: " + category);
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setMedicalCondition(String medicalCondition) {
+        this.medicalCondition = medicalCondition;
+    }
+}
+
+public class InPatient extends Patient {
+
+    public InPatient(String patientId, String firstName, String lastName,
+                     int age, String gender, String medicalCondition) {
+
+        super(patientId, firstName, lastName, age,
+                gender, medicalCondition,
+                PatientCategory.INPATIENT);
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("=== INPATIENT ===");
+        super.displayInfo();
+    }
+}
+
+public class OutPatient extends Patient {
+
+    public OutPatient(String patientId, String firstName, String lastName,
+                      int age, String gender, String medicalCondition) {
+
+        super(patientId, firstName, lastName, age,
+                gender, medicalCondition,
+                PatientCategory.OUTPATIENT);
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("=== OUTPATIENT ===");
+        super.displayInfo();
+    }
+}
+
+public class EmergencyPatient extends Patient {
+
+    public EmergencyPatient(String patientId, String firstName,
+                            String lastName, int age,
+                            String gender, String medicalCondition) {
+
+        super(patientId, firstName, lastName,
+                age, gender,
+                medicalCondition,
+                PatientCategory.EMERGENCY);
+    }
+
+    @Override
+    public void displayInfo() {
+        System.out.println("=== EMERGENCY PATIENT ===");
+        super.displayInfo();
+    }
+}
+
+import java.util.HashMap;
+
+public class Ward {
+
+    private final String[][] beds;
+    private final HashMap<String, String> allocations;
+
+    public Ward() {
+
+        beds = new String[4][5];
+        allocations = new HashMap<>();
+
+        int num = 1;
+
+        for (int r = 0; r < 4; r++) {
+            for (int c = 0; c < 5; c++) {
+                beds[r][c] = String.format("B%02d", num++);
+            }
+        }
+    }
+
+    public void displayWard() {
+
+        for (String[] row : beds) {
+            for (String bed : row) {
+
+                if (allocations.containsKey(bed)) {
+                    System.out.print("[X] ");
+                } else {
+                    System.out.print(bed + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public boolean allocateBed(String patientId, String bedNumber) {
+
+        if (allocations.containsKey(bedNumber)) {
+            return false;
+        }
+
+        allocations.put(bedNumber, patientId);
+        return true;
+    }
+
+    public boolean releaseBed(String bedNumber) {
+
+        if (allocations.containsKey(bedNumber)) {
+            allocations.remove(bedNumber);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void displayAvailableBeds() {
+
+        for (String[] row : beds) {
+            for (String bed : row) {
+                if (!allocations.containsKey(bed)) {
+                    System.out.println(bed);
+                }
+            }
+        }
+    }
+
+    public void displayOccupiedBeds() {
+
+        allocations.forEach((bed, patient) ->
+                System.out.println(bed + " -> " + patient));
+    }
+}
+
+import java.util.ArrayList;
+import java.util.Comparator;
+
+public class HospitalSystem {
+
+    private ArrayList<Patient> patients;
+    private Ward ward;
+
+    public HospitalSystem() {
+        patients = new ArrayList<>();
+        ward = new Ward();
+    }
+
+    public boolean addPatient(Patient patient) {
+
+        for (Patient p : patients) {
+            if (p.getPatientId().equals(patient.getPatientId())) {
+                return false;
+            }
+        }
+
+        patients.add(patient);
+        return true;
+    }
+
+    public Patient searchPatient(String id) {
+
+        for (Patient p : patients) {
+            if (p.getPatientId().equals(id)) {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean deletePatient(String id) {
+
+        Patient p = searchPatient(id);
+
+        if (p != null) {
+            patients.remove(p);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void displayPatients() {
+
+        for (Patient p : patients) {
+            p.displayInfo();
+            System.out.println("----------------");
+        }
+    }
+
+    public void sortBySurname() {
+
+        patients.sort(
+            Comparator.comparing(Patient::getLastName)
+        );
+    }
+
+    public void sortByPatientId() {
+
+        patients.sort(
+            Comparator.comparing(Patient::getPatientId)
+        );
+    }
+
+    public Ward getWard() {
+        return ward;
+    }
+}
